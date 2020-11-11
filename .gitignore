@@ -1,0 +1,21 @@
+# Java
+*.class
+*.jar
+
+# Eclipse
+.project
+.classpath
+.settings
+.sts4-cache
+
+# IntelliJ IDEA
+.iml
+
+# Maven
+target
+
+# Other
+*.log
+
+# tokenが含まれる設定ファイル
+data/common.properties
