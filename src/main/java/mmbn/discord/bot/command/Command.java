@@ -1,6 +1,7 @@
 package mmbn.discord.bot.command;
 
 import net.dv8tion.jda.api.Permission;
+import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import okhttp3.MediaType;
@@ -39,7 +40,15 @@ public abstract class Command {
      * @param msg 送信メッセージ
      */
     protected void sendMessage(String msg) {
-        event.getChannel().sendTyping().queue();
+        event.getChannel().sendMessage(msg).queue();
+    }
+
+    /**
+     * 埋め込みメッセージを送信
+     *
+     * @param msg 送信埋め込みメッセージ
+     */
+    protected void sendEmbed(MessageEmbed msg) {
         event.getChannel().sendMessage(msg).queue();
     }
 

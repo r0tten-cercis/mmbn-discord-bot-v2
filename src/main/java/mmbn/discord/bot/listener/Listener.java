@@ -21,7 +21,7 @@ import net.dv8tion.jda.api.hooks.ListenerAdapter;
 public class Listener extends ListenerAdapter {
 
     /** コマンド接頭辞 */
-    final private static String PREFIX = "?";
+    private static final String PREFIX = "?";
 
     /**
      * {@inheritDoc}

@@ -3,9 +3,11 @@ package mmbn.discord.bot.command.api;
 import com.google.gson.Gson;
 import mmbn.discord.bot.command.Command;
 import mmbn.discord.bot.dto.TournamentDto;
+import mmbn.discord.bot.entity.ParticipantEntity;
 import mmbn.discord.bot.entity.TournamentEntity;
 import mmbn.discord.bot.util.JsonUtil;
 import mmbn.discord.bot.util.PropertyUtil;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -13,6 +15,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.awt.*;
 
 /**
  * startコマンドクラス
@@ -38,7 +42,11 @@ public class Start extends Command {
     public void execute() {
 
         if (!isAdmin()) {
-            sendMessage("> 管理者のみ使用可能なコマンドです。");
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setColor(Color.RED);
+            eb.setTitle("エラー");
+            eb.setDescription("管理者のみ使用可能なコマンドです。");
+            sendEmbed(eb.build());
             return;
         }
 
@@ -51,7 +59,11 @@ public class Start extends Command {
             TournamentEntity tournament = gson.fromJson(json, TournamentEntity.class);
 
             if (tournament == null) {
-                sendMessage("> トーナメントが登録されていません。");
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setColor(Color.RED);
+                eb.setTitle("エラー");
+                eb.setDescription("トーナメントが登録されていません。");
+                sendEmbed(eb.build());
                 return;
             }
 
@@ -71,11 +83,25 @@ public class Start extends Command {
             try (Response response = okHttpClient.newCall(request).execute()) {
                 if (!response.isSuccessful()) {
                     log.error("response code:" + response.code());
-                    sendMessage("> トーナメント開始でエラーが発生しました。");
+                    EmbedBuilder eb = new EmbedBuilder();
+                    eb.setColor(Color.RED);
+                    eb.setTitle("エラー");
+                    eb.setDescription("トーナメント開始でエラーが発生しました。");
+                    sendEmbed(eb.build());
                     return;
                 }
 
-                sendMessage("> トーナメントを開始しました。 https://challonge.com/" + tournament.getUrl());
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setColor(Color.GREEN);
+                eb.setTitle("トーナメント開始");
+                eb.setDescription("トーナメントを開始しました。");
+                eb.addField("URL", "https://challonge.com/" + tournament.getUrl(), false);
+                eb.addField("参加人数", tournament.getParticipants().size() + "人", false);
+                eb.addBlankField(false);
+                for (ParticipantEntity participant : tournament.getParticipants()) {
+                    eb.addField(participant.getName(), "<@!" + participant.getDiscord_id() + ">", true);
+                }
+                sendEmbed(eb.build());
             }
 
         } catch (Exception e) {

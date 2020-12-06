@@ -1,9 +1,13 @@
 package mmbn.discord.bot.command;
 
+import java.awt.*;
 import java.net.ConnectException;
+import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketTimeoutException;
 import java.util.List;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -41,7 +45,7 @@ public class PortCheck extends Command {
     @Override
     public void execute() {
 
-        Socket socket;
+        Socket socket = new Socket();
         String ipAddress = null;
         int port = 5738;
 
@@ -68,25 +72,44 @@ public class PortCheck extends Command {
             }
 
             if (ipAddress == null) {
-                String sb = "> IPアドレスが登録されていません。\r" +
-                        "> 下記サイトからグローバルIPアドレスを確認し、**?regist**コマンドで登録を行ってください。\r" +
-                        "> https://www.cman.jp/network/support/go_access.cgi";
-                sendMessage(sb);
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setColor(Color.RED);
+                eb.setTitle("IPアドレスが登録されていません。");
+                eb.setDescription("下記サイトからグローバルIPアドレスを確認し\n**?regist**コマンドで登録を行ってください。");
+                eb.addField("URL", "https://www.cman.jp/network/support/go_access.cgi", false);
+                sendEmbed(eb.build());
                 return;
             }
 
-            socket = new Socket(ipAddress, port);
+            InetSocketAddress endPoint = new InetSocketAddress(ipAddress, port);
+            socket.connect(endPoint, 1000);
 
-            String msg = "> " + ipAddress + "のポート" + port + "は解放されています。";
-            sendMessage(msg);
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setColor(Color.GREEN);
+            eb.setTitle("接続成功");
+            eb.setDescription("接続テストに成功しました。");
+            eb.addField("IPアドレス", ipAddress, true);
+            eb.addField("ポート番号", String.valueOf(port), true);
+            sendEmbed(eb.build());
 
             socket.close();
 
-        } catch (ConnectException e) {
-            String msg = "> " + ipAddress + "のポート" + port + "は解放されていません。";
-            sendMessage(msg);
+        } catch (SocketTimeoutException e) {
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setColor(Color.RED);
+            eb.setTitle("接続失敗");
+            eb.setDescription("接続テストに失敗しました。");
+            eb.addField("IPアドレス", ipAddress, true);
+            eb.addField("ポート番号", String.valueOf(port), true);
+            sendEmbed(eb.build());
+
         } catch (NumberFormatException e) {
-            sendMessage("ポート番号は半角数字で入力してください。");
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setColor(Color.RED);
+            eb.setTitle("エラー");
+            eb.setDescription("ポート番号は半角数字で入力してください。");
+            sendEmbed(eb.build());
+
         } catch (Exception e) {
             log.error("", e);
             sendMessage("> エラーが発生しました。");

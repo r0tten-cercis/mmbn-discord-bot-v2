@@ -6,6 +6,7 @@ import mmbn.discord.bot.dto.TournamentDto;
 import mmbn.discord.bot.entity.TournamentEntity;
 import mmbn.discord.bot.util.JsonUtil;
 import mmbn.discord.bot.util.PropertyUtil;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -13,6 +14,8 @@ import okhttp3.RequestBody;
 import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.awt.*;
 
 /**
  * deleteコマンドクラス
@@ -38,7 +41,11 @@ public class Delete extends Command {
     public void execute() {
 
         if (!isAdmin()) {
-            sendMessage("> 管理者のみ使用可能なコマンドです。");
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setColor(Color.RED);
+            eb.setTitle("エラー");
+            eb.setDescription("管理者のみ使用可能なコマンドです。");
+            sendEmbed(eb.build());
             return;
         }
 
@@ -51,7 +58,11 @@ public class Delete extends Command {
             TournamentEntity tournament = gson.fromJson(json, TournamentEntity.class);
 
             if (tournament == null) {
-                sendMessage("> トーナメントが登録されていません。");
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setColor(Color.RED);
+                eb.setTitle("エラー");
+                eb.setDescription("トーナメントが登録されていません。");
+                sendEmbed(eb.build());
                 return;
             }
 
@@ -71,13 +82,21 @@ public class Delete extends Command {
             try (Response response = okHttpClient.newCall(request).execute()) {
                 if (!response.isSuccessful()) {
                     log.error("response code:" + response.code());
-                    sendMessage("> トーナメント削除でエラーが発生しました。");
+                    EmbedBuilder eb = new EmbedBuilder();
+                    eb.setColor(Color.RED);
+                    eb.setTitle("エラー");
+                    eb.setDescription("トーナメント削除でエラーが発生しました。");
+                    sendEmbed(eb.build());
                     return;
                 }
 
                 JsonUtil.writeJson("", filePath);
 
-                sendMessage("> トーナメントを削除しました。");
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setColor(Color.GREEN);
+                eb.setTitle("トーナメント削除");
+                eb.setDescription("トーナメントを削除しました。");
+                sendEmbed(eb.build());
             }
 
         } catch (Exception e) {

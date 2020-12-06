@@ -1,10 +1,12 @@
 package mmbn.discord.bot.command;
 
+import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -43,7 +45,11 @@ public class Regist extends Command {
     public void execute() {
         try {
             if (args.length < 2) {
-                sendMessage("> 登録するIPアドレスが入力されていません。");
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setColor(Color.RED);
+                eb.setTitle("エラー");
+                eb.setDescription("登録するIPアドレスが入力されていません。");
+                sendEmbed(eb.build());
                 return;
             }
 
@@ -58,7 +64,11 @@ public class Regist extends Command {
 
             // IPアドレス形式チェック
             if (!ip.matches("(([1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\\.){3}([1-9]?[0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])")) {
-                sendMessage("> IPアドレスの形式が間違っています。");
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setColor(Color.RED);
+                eb.setTitle("エラー");
+                eb.setDescription("IPアドレスの形式が間違っています。");
+                sendEmbed(eb.build());
                 return;
             }
 
@@ -101,7 +111,12 @@ public class Regist extends Command {
             Gson gson = new Gson();
             JsonUtil.writeJson(gson.toJson(list), filePath);
 
-            sendMessage("> 登録が完了しました。");
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setColor(Color.GREEN);
+            eb.setTitle("登録完了");
+            eb.setDescription("IPアドレスの登録が完了しました。");
+            eb.addField("IPアドレス", ip, false);
+            sendEmbed(eb.build());
 
         } catch (Exception e) {
             log.error("", e);

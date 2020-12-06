@@ -7,6 +7,7 @@ import mmbn.discord.bot.dto.TournamentDto;
 import mmbn.discord.bot.entity.TournamentEntity;
 import mmbn.discord.bot.util.JsonUtil;
 import mmbn.discord.bot.util.PropertyUtil;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -15,6 +16,7 @@ import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
@@ -47,12 +49,20 @@ public class Create extends Command {
     public void execute() {
 
         if (!isAdmin()) {
-            sendMessage("> 管理者のみ使用可能なコマンドです。");
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setColor(Color.RED);
+            eb.setTitle("エラー");
+            eb.setDescription("管理者のみ使用可能なコマンドです。");
+            sendEmbed(eb.build());
             return;
         }
 
         if (args.length < 2) {
-            sendMessage("> トーナメント名を入力してください。");
+            EmbedBuilder eb = new EmbedBuilder();
+            eb.setColor(Color.RED);
+            eb.setTitle("エラー");
+            eb.setDescription("トーナメント名を入力してください。");
+            sendEmbed(eb.build());
             return;
         }
 
@@ -65,7 +75,11 @@ public class Create extends Command {
             TournamentEntity tournament = gson.fromJson(json, TournamentEntity.class);
 
             if (tournament != null) {
-                sendMessage("> 既にトーナメントが登録されています。");
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setColor(Color.RED);
+                eb.setTitle("エラー");
+                eb.setDescription("既にトーナメントが登録されています。");
+                sendEmbed(eb.build());
                 return;
             }
 
@@ -120,7 +134,11 @@ public class Create extends Command {
             try (Response response = okHttpClient.newCall(request).execute()) {
                 if (!response.isSuccessful()) {
                     log.error("response code:" + response.code());
-                    sendMessage("> トーナメント作成でエラーが発生しました。");
+                    EmbedBuilder eb = new EmbedBuilder();
+                    eb.setColor(Color.RED);
+                    eb.setTitle("エラー");
+                    eb.setDescription("トーナメント作成でエラーが発生しました。");
+                    sendEmbed(eb.build());
                     return;
                 }
 
@@ -129,7 +147,13 @@ public class Create extends Command {
 
                 JsonUtil.writeJson(gson.toJson(tournament), filePath);
 
-                sendMessage("> トーナメントを作成しました。 https://challonge.com/" + tournamentUrl);
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setColor(Color.GREEN);
+                eb.setTitle("トーナメント作成完了");
+                eb.setDescription("参加希望者は**?join**コマンドで参加申請を行ってください。");
+                eb.addField("大会名", dto.getTournament().getName(), false);
+                eb.addField("URL", "https://challonge.com/" + tournamentUrl, false);
+                sendEmbed(eb.build());
             }
 
         } catch (Exception e) {

@@ -1,7 +1,9 @@
 package mmbn.discord.bot.command;
 
+import java.awt.*;
 import java.util.List;
 
+import net.dv8tion.jda.api.EmbedBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -51,19 +53,24 @@ public class Ip extends Command {
                 for (UserEntity entity : list) {
                     if (entity.getId().equals(id)) {
                         // user_idが一致した場合、登録されたIPを送信
-                        String msg = "> " + entity.getIpAddr() + "\r" +
-                                "> 登録日時 : " + entity.getRegistDate();
-                        sendMessage(msg);
+                        EmbedBuilder eb = new EmbedBuilder();
+                        eb.setColor(Color.GREEN);
+                        eb.setTitle("IPアドレス情報");
+                        eb.addField("IPアドレス", entity.getIpAddr(), false);
+                        eb.addField("登録日時", entity.getRegistDate(), false);
+                        sendEmbed(eb.build());
                         return;
                     }
                 }
             }
 
             if (isErrorSend) {
-                String sb = "> IPアドレスが登録されていません。\r" +
-                        "> 下記サイトからグローバルIPアドレスを確認し、**?regist**コマンドで登録を行ってください。\r" +
-                        "> https://www.cman.jp/network/support/go_access.cgi";
-                sendMessage(sb);
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setColor(Color.RED);
+                eb.setTitle("IPアドレスが登録されていません。");
+                eb.setDescription("下記サイトからグローバルIPアドレスを確認し\n**?regist**コマンドで登録を行ってください。");
+                eb.addField("URL", "https://www.cman.jp/network/support/go_access.cgi", false);
+                sendEmbed(eb.build());
             }
 
         } catch (Exception e) {

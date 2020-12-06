@@ -7,6 +7,7 @@ import mmbn.discord.bot.entity.ParticipantEntity;
 import mmbn.discord.bot.entity.TournamentEntity;
 import mmbn.discord.bot.util.JsonUtil;
 import mmbn.discord.bot.util.PropertyUtil;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.events.message.guild.GuildMessageReceivedEvent;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -15,6 +16,7 @@ import okhttp3.Response;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.awt.*;
 import java.util.List;
 
 /**
@@ -49,7 +51,11 @@ public class Quit extends Command {
             TournamentEntity tournament = gson.fromJson(json, TournamentEntity.class);
 
             if (tournament == null) {
-                sendMessage("> トーナメントが登録されていません。");
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setColor(Color.RED);
+                eb.setTitle("エラー");
+                eb.setDescription("トーナメントが登録されていません。");
+                sendEmbed(eb.build());
                 return;
             }
 
@@ -69,7 +75,11 @@ public class Quit extends Command {
             }
 
             if (!isExist) {
-                sendMessage("> 参加申請が行われていません。");
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setColor(Color.RED);
+                eb.setTitle("エラー");
+                eb.setDescription("参加申請が行われていません。");
+                sendEmbed(eb.build());
                 return;
             }
 
@@ -88,7 +98,11 @@ public class Quit extends Command {
             try (Response response = okHttpClient.newCall(request).execute()) {
                 if (!response.isSuccessful()) {
                     log.error("response code:" + response.code());
-                    sendMessage("> 参加申請取り消しでエラーが発生しました。");
+                    EmbedBuilder eb = new EmbedBuilder();
+                    eb.setColor(Color.RED);
+                    eb.setTitle("エラー");
+                    eb.setDescription("参加申請取り消しでエラーが発生しました。");
+                    sendEmbed(eb.build());
                     return;
                 }
 
@@ -98,7 +112,11 @@ public class Quit extends Command {
 
                 JsonUtil.writeJson(gson.toJson(tournament), filePath);
 
-                sendMessage("> 参加申請を取り消しました。");
+                EmbedBuilder eb = new EmbedBuilder();
+                eb.setColor(Color.GREEN);
+                eb.setTitle("参加申請取り消し");
+                eb.setDescription("参加申請を取り消しました。");
+                sendEmbed(eb.build());
             }
 
         } catch (Exception e) {
