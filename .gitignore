@@ -9,7 +9,7 @@
 .sts4-cache
 
 # IntelliJ IDEA
-.iml
+*.iml
 
 # Maven
 target

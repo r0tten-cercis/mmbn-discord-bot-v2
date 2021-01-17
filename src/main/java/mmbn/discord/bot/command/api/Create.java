@@ -92,7 +92,7 @@ public class Create extends Command {
             detailDto.setName(args[1].replace("-", " "));
             Date date = new Date();
             SimpleDateFormat fmt = new SimpleDateFormat("yyyyMMddHHmm");
-            String tournamentUrl = "mmbn6_" + fmt.format(date);
+            String tournamentUrl = PropertyUtil.getProperty("tournament_url") + fmt.format(date);
             detailDto.setUrl(tournamentUrl);
 
             // トーナメント形式の設定
